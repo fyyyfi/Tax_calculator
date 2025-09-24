@@ -7,7 +7,7 @@ public class Main {
     
   
     public static void main(String[] args) {
-        System.out.println("=== Система розрахунку податків фізичної особи ===");
+        System.out.println("Система розрахунку");
         System.out.println();
         
         
