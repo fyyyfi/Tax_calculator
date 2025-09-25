@@ -3,8 +3,8 @@ package ua.student.taxes.model;
 
 public class Gift extends Income {
     
-    private static final double TAX_RATE = 18.0;           // ПДФО 18%
-    private static final double MILITARY_TAX_RATE = 1.5;   // Військовий збір 1.5%
+    private static final double TAX_RATE = 18.0;           
+    private static final double MILITARY_TAX_RATE = 5.0;   
     private static final double TAX_FREE_LIMIT = 50000.0;  // Неоподатковуваний ліміт 50 тис грн
     
     private String giftType;    

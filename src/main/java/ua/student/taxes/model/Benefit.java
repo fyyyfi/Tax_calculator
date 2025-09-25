@@ -31,7 +31,7 @@ public class Benefit {
         }
         
         
-        double benefitAmount = numberOfChildren * 10320.0; 
+        double benefitAmount = numberOfChildren * 4200.0; 
         String description = String.format("Податкова знижка на %d дит(ину/ей)", numberOfChildren);
         
         return new Benefit("Пільга на дітей", benefitAmount, description);

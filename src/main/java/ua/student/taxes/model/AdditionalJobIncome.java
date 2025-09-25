@@ -5,7 +5,7 @@ public class AdditionalJobIncome extends Income {
     
     
     private static final double TAX_RATE = 18.0;           
-    private static final double MILITARY_TAX_RATE = 1.5;   
+    private static final double MILITARY_TAX_RATE = 5.0;   
     private static final double TOTAL_TAX_RATE = TAX_RATE + MILITARY_TAX_RATE;
     
     private String companyName;   
