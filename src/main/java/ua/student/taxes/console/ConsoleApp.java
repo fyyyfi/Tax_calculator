@@ -3,30 +3,59 @@ package ua.student.taxes.console;
 import ua.student.taxes.model.*;
 import ua.student.taxes.calculator.TaxCalculator;
 import ua.student.taxes.calculator.TaxReport;
+import ua.student.taxes.services.StorageService; // 1. ІМПОРТ нового сервісу
+
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleApp {
     
     private Scanner scanner;
     private TaxCalculator calculator;
+    private TaxDatabase taxDatabase;
     private Person currentPerson;
+    private final StorageService storageService;
 
     public ConsoleApp() {
         scanner = new Scanner(System.in);
         calculator = new TaxCalculator();
+        storageService = new StorageService();
     }
 
     public void start() {
         System.out.println("Система розрахунку податків");
-        System.out.println();
-        
- 
-        createPerson();
-        
-
-        showMainMenu();
-    }
+        taxDatabase = storageService.loadData();
+        showMainMenu();}
     
+        private void showMainMenu() {
+        boolean running = true;
+        while (running) {
+            System.out.println("\n--- ГОЛОВНЕ МЕНЮ ---");
+            System.out.println("1. Обрати платника податків");
+            System.out.println("2. Створити нового платника");
+            System.out.println("3. Зберегти та вийти");
+            System.out.print("Оберіть опцію: ");
+            
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1":
+                    selectPerson();
+                    break;
+                case "2":
+                    createPerson();
+                    break;
+                case "3":
+                    storageService.saveData(taxDatabase);
+                    running = false;
+                    System.out.println("До побачення!");
+                    break;
+                default:
+                    System.out.println("Невірний вибір. Спробуйте знову.");
+            }
+        }
+    }    
+
+
 
     private void createPerson() {
         System.out.println("Введіть дані платника податків:");
@@ -34,52 +63,63 @@ public class ConsoleApp {
         String name = scanner.nextLine();
         
         System.out.print("Податковий номер: ");
-        String taxNumber = scanner.nextLine();
+        String taxNumber = scanner.nextLine();        
+        Person newPerson = new Person(name, taxNumber);
+    
+        taxDatabase.addPerson(newPerson);
         
         currentPerson = new Person(name, taxNumber);
         System.out.println("Платника " + name + " створено успішно!");
         System.out.println();
     }
     
+      private void selectPerson() {
+        List<Person> persons = taxDatabase.getPersons();
+        if (persons.isEmpty()) {
+            System.out.println("Список платників порожній. Спочатку створіть нового.");
+            return;
+        }
 
-    private void showMainMenu() {
+        System.out.println("\n--- ОБЕРІТЬ ПЛАТНИКА ---");
+        for (int i = 0; i < persons.size(); i++) {
+            System.out.printf("%d. %s (ІПН: %s)\n", (i + 1), persons.get(i).getName(), persons.get(i).getTaxNumber());
+        }
+        System.out.println("0. Повернутися до головного меню");
+        System.out.print("Ваш вибір: ");
+
+        int choice = readInt();
+        if (choice > 0 && choice <= persons.size()) {
+            currentPerson = persons.get(choice - 1);
+            System.out.println("\nОбрано платника: " + currentPerson.getName());
+            showPersonMenu();
+        } else if (choice != 0) {
+            System.out.println("Невірний номер.");
+        }
+    }
+    private void showPersonMenu() {
         boolean running = true;
-        
         while (running) {
-            System.out.println("ГОЛОВНЕ МЕНЮ");
+            System.out.println("\n--- МЕНЮ ПЛАТНИКА: " + currentPerson.getName() + " ---");
             System.out.println("1. Додати дохід");
             System.out.println("2. Додати пільгу");
             System.out.println("3. Розрахувати податки");
             System.out.println("4. Показати звіт");
-            System.out.println("5. Вийти");
-            System.out.print("Оберіть опцію (1-5): ");
+            System.out.println("5. Повернутися до головного меню");
+            System.out.print("Оберіть опцію: ");
             
             String choice = scanner.nextLine();
-            
             switch (choice) {
-                case "1":
-                    addIncomeMenu();
-                    break;
-                case "2":
-                    addBenefitMenu();
-                    break;
-                case "3":
-                    calculateTaxes();
-                    break;
-                case "4":
-                    showReport();
-                    break;
-                case "5":
-                    running = false;
-                    System.out.println("До побачення!");
-                    break;
-                default:
-                    System.out.println("Оберіть 1-5. Спробуйте знову.");
+                case "1": addIncomeMenu(); break;
+                case "2": addBenefitMenu(); break;
+                case "3": calculateTaxes(); break;
+                case "4": showReport(); break;
+                case "5": running = false; break;
+                default: System.out.println("Оберіть 1-5. Спробуйте знову.");
             }
-            System.out.println();
         }
     }
-    
+
+   
  
     private void addIncomeMenu() {
         System.out.println("ДОДАВАННЯ ДОХОДУ");
@@ -119,7 +159,7 @@ public class ConsoleApp {
     
     private void addMainJobIncome() {
         System.out.print("Сума заробітної плати: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = readDouble();
         System.out.print("Назва компанії: ");
         String company = scanner.nextLine();
         System.out.print("Посада: ");
@@ -132,7 +172,7 @@ public class ConsoleApp {
     
     private void addAdditionalJobIncome() {
         System.out.print("Сума доходу: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+         double amount = readDouble();
         System.out.print("Назва компанії: ");
         String company = scanner.nextLine();
         System.out.print("Тип роботи: ");
@@ -147,7 +187,7 @@ public class ConsoleApp {
     
     private void addAuthorReward() {
         System.out.print("Сума винагороди: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = readDouble();
         System.out.print("Тип твору: ");
         String workType = scanner.nextLine();
         System.out.print("Видавець: ");
@@ -160,7 +200,7 @@ public class ConsoleApp {
     
     private void addPropertySale() {
         System.out.print("Сума від продажу: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = readDouble();
         System.out.print("Тип майна: ");
         String propertyType = scanner.nextLine();
         System.out.print("Кількість років володіння: ");
@@ -173,7 +213,7 @@ public class ConsoleApp {
     
     private void addGift() {
         System.out.print("Сума подарунка: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = readDouble();
         System.out.print("Тип подарунка: ");
         String giftType = scanner.nextLine();
         System.out.print("Від кого: ");
@@ -186,7 +226,7 @@ public class ConsoleApp {
     
     private void addForeignTransfer() {
         System.out.print("Сума переказу: ");
-        double amount = Double.parseDouble(scanner.nextLine());
+        double amount = readDouble();
         System.out.print("Країна: ");
         String country = scanner.nextLine();
         System.out.print("Призначення: ");
@@ -209,14 +249,14 @@ public class ConsoleApp {
         switch (choice) {
             case "1":
                 System.out.print("Кількість дітей: ");
-                int children = Integer.parseInt(scanner.nextLine());
+                int children = readInt();
                 Benefit childBenefit = Benefit.createChildBenefit(children);
                 currentPerson.addBenefit(childBenefit);
                 System.out.println("Пільгу додано!");
                 break;
             case "2":
                 System.out.print("Сума допомоги: ");
-                double amount = Double.parseDouble(scanner.nextLine());
+                double amount = readDouble();
                 System.out.print("Причина: ");
                 String reason = scanner.nextLine();
                 Benefit assistance = Benefit.createMaterialAssistance(amount, reason);
@@ -252,5 +292,25 @@ public class ConsoleApp {
         
         TaxReport report = calculator.generateReport(currentPerson);
         report.printDetailedReport();
+    }
+
+     private int readInt() {
+        while (true) {
+            try {
+                return Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.print(" Помилка: введіть ціле число. Спробуйте ще раз: ");
+            }
+        }
+    }
+
+    private double readDouble() {
+        while (true) {
+            try {
+                return Double.parseDouble(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.print("Помилка: введіть число (дробову частину можна вводити через крапку). Спробуйте ще раз: ");
+            }
+        }
     }
 }

@@ -1,0 +1,25 @@
+{
+  "persons": [
+    {
+      "name": "2222",
+      "taxNumber": "2222",
+      "incomes": [
+        {
+          "type": "ForeignTransfer",
+          "country": "333",
+          "purpose": "333",
+          "amount": 333.0,
+          "description": "Переказ з-за кордону",
+          "source": "Міжнародний переказ з 333"
+        }
+      ],
+      "benefits": [
+        {
+          "benefitType": "Пільга на дітей",
+          "amount": 12600.0,
+          "description": "Податкова знижка на 3 дит(ину/ей)"
+        }
+      ]
+    }
+  ]
+}
